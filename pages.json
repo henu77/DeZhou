@@ -1,15 +1,40 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "德州扑克",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/create-room/create-room",
+			"style": {
+				"navigationBarTitleText": "创建房间"
+			}
+		},
+		{
+			"path": "pages/room-detail/room-detail",
+			"style": {
+				"navigationBarTitleText": "游戏大厅"
+			}
+		},
+		{
+			"path": "pages/game-table/game-table",
+			"style": {
+				"navigationBarTitleText": "游戏进行中"
+			}
+		},
+		{
+			"path": "pages/game-result/game-result",
+			"style": {
+				"navigationBarTitleText": "游戏结果"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "德州扑克",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	},
