@@ -1,0 +1,173 @@
+{
+  "bsonType": "object",
+  "required": ["roomName", "maxPlayers", "creatorId", "gameState", "smallBlind", "bigBlind"],
+  "permission": {
+    "read": true,
+    "create": "auth.uid != null",
+    "update": "doc.creatorId == auth.uid",
+    "delete": "doc.creatorId == auth.uid"
+  },
+  "properties": {
+    "_id": {
+      "description": "房间ID"
+    },
+    "roomName": {
+      "bsonType": "string",
+      "description": "房间名称",
+      "maxLength": 30
+    },
+    "maxPlayers": {
+      "bsonType": "int",
+      "description": "最大玩家数",
+      "minimum": 2,
+      "maximum": 10
+    },
+    "smallBlind": {
+      "bsonType": "int",
+      "description": "小盲注",
+      "minimum": 1
+    },
+    "bigBlind": {
+      "bsonType": "int",
+      "description": "大盲注",
+      "minimum": 1
+    },
+    "creatorId": {
+      "bsonType": "string",
+      "description": "创建者ID"
+    },
+    "gameState": {
+      "bsonType": "string",
+      "description": "游戏状态：waiting-等待中, playing-进行中, finished-已结束",
+      "enum": ["waiting", "playing", "finished"]
+    },
+    "players": {
+      "bsonType": "array",
+      "description": "玩家列表",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "userId": {
+            "bsonType": "string",
+            "description": "用户ID"
+          },
+          "seat": {
+            "bsonType": "int",
+            "description": "座位号(0-9)",
+            "minimum": 0,
+            "maximum": 9
+          },
+          "nickname": {
+            "bsonType": "string",
+            "description": "昵称"
+          },
+          "avatar": {
+            "bsonType": "string",
+            "description": "头像",
+            "optional": true
+          },
+          "ready": {
+            "bsonType": "bool",
+            "description": "是否准备",
+            "defaultValue": false
+          },
+          "coins": {
+            "bsonType": "int",
+            "description": "当前筹码",
+            "minimum": 0
+          },
+          "cards": {
+            "bsonType": "array",
+            "description": "手牌",
+            "items": {
+              "bsonType": "string"
+            },
+            "optional": true
+          },
+          "folded": {
+            "bsonType": "bool",
+            "description": "是否弃牌",
+            "defaultValue": false
+          },
+          "allIn": {
+            "bsonType": "bool",
+            "description": "是否全下",
+            "defaultValue": false
+          }
+        }
+      }
+    },
+    "currentPlayerIndex": {
+      "bsonType": "int",
+      "description": "当前行动玩家索引",
+      "optional": true
+    },
+    "dealerIndex": {
+      "bsonType": "int",
+      "description": "庄位索引",
+      "optional": true
+    },
+    "communityCards": {
+      "bsonType": "array",
+      "description": "公共牌",
+      "items": {
+        "bsonType": "string"
+      },
+      "defaultValue": []
+    },
+    "pot": {
+      "bsonType": "int",
+      "description": "主底池",
+      "minimum": 0,
+      "defaultValue": 0
+    },
+    "sidePots": {
+      "bsonType": "array",
+      "description": "边池列表",
+      "defaultValue": [],
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "players": {
+            "bsonType": "array",
+            "description": "参与边池的玩家ID列表",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "amount": {
+            "bsonType": "int",
+            "description": "边池金额",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "currentBet": {
+      "bsonType": "int",
+      "description": "当前轮次最高下注额",
+      "minimum": 0,
+      "defaultValue": 0
+    },
+    "round": {
+      "bsonType": "string",
+      "description": "游戏轮次：preflop-翻牌前, flop-翻牌, turn-转牌, river-河牌, showdown-摊牌",
+      "enum": ["preflop", "flop", "turn", "river", "showdown"],
+      "defaultValue": "preflop"
+    },
+    "createTime": {
+      "bsonType": "date",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "updateTime": {
+      "bsonType": "date",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

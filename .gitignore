@@ -1,0 +1,40 @@
+# uni-app 项目
+unpackage/
+node_modules/
+.hbuilderx/
+
+# uniCloud
+uniCloud-aliyun/cloudfunctions/*/.gitignore
+uniCloud-aliyun/cloudfunctions/*/node_modules/
+uniCloud-tcb/cloudfunctions/*/.gitignore
+uniCloud-tcb/cloudfunctions/*/node_modules/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+dist/

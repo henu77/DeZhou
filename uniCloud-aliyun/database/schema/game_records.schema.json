@@ -1,0 +1,84 @@
+{
+  "bsonType": "object",
+  "required": ["roomId", "gameType", "players"],
+  "permission": {
+    "read": true,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "记录ID"
+    },
+    "roomId": {
+      "bsonType": "string",
+      "description": "房间ID"
+    },
+    "gameType": {
+      "bsonType": "string",
+      "description": "游戏类型",
+      "defaultValue": "poker"
+    },
+    "players": {
+      "bsonType": "array",
+      "description": "玩家列表",
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "userId": {
+            "bsonType": "string",
+            "description": "用户ID"
+          },
+          "nickname": {
+            "bsonType": "string",
+            "description": "昵称"
+          },
+          "finalPosition": {
+            "bsonType": "int",
+            "description": "最终排名(1=冠军)"
+          },
+          "coinsWon": {
+            "bsonType": "int",
+            "description": "赢得金币",
+            "minimum": 0
+          },
+          "handType": {
+            "bsonType": "string",
+            "description": "最终牌型",
+            "optional": true
+          },
+          "cards": {
+            "bsonType": "array",
+            "description": "最终手牌",
+            "items": {
+              "bsonType": "string"
+            },
+            "optional": true
+          }
+        }
+      }
+    },
+    "winnerId": {
+      "bsonType": "string",
+      "description": "获胜者ID"
+    },
+    "totalPot": {
+      "bsonType": "int",
+      "description": "总底池",
+      "minimum": 0
+    },
+    "duration": {
+      "bsonType": "int",
+      "description": "游戏时长(秒)",
+      "minimum": 0
+    },
+    "createTime": {
+      "bsonType": "date",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

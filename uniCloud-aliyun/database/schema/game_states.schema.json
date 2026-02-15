@@ -1,0 +1,71 @@
+{
+  "bsonType": "object",
+  "required": ["roomId", "round", "actions"],
+  "permission": {
+    "read": true,
+    "create": false,
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "状态ID"
+    },
+    "roomId": {
+      "bsonType": "string",
+      "description": "房间ID"
+    },
+    "gameId": {
+      "bsonType": "string",
+      "description": "游戏ID",
+      "optional": true
+    },
+    "round": {
+      "bsonType": "string",
+      "description": "游戏轮次：preflop-翻牌前, flop-翻牌, turn-转牌, river-河牌, showdown-摊牌",
+      "enum": ["preflop", "flop", "turn", "river", "showdown"]
+    },
+    "actions": {
+      "bsonType": "array",
+      "description": "本轮行动记录",
+      "defaultValue": [],
+      "items": {
+        "bsonType": "object",
+        "properties": {
+          "userId": {
+            "bsonType": "string",
+            "description": "玩家ID"
+          },
+          "action": {
+            "bsonType": "string",
+            "description": "行动类型：check-过牌, call-跟注, raise-加注, fold-弃牌, allin-全下",
+            "enum": ["check", "call", "raise", "fold", "allin"]
+          },
+          "amount": {
+            "bsonType": "int",
+            "description": "下注金额",
+            "minimum": 0,
+            "defaultValue": 0
+          },
+          "timestamp": {
+            "bsonType": "date",
+            "description": "行动时间"
+          }
+        }
+      }
+    },
+    "version": {
+      "bsonType": "int",
+      "description": "状态版本号，用于冲突解决",
+      "minimum": 0,
+      "defaultValue": 0
+    },
+    "createTime": {
+      "bsonType": "date",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "bsonType": "object",
+  "required": ["_id", "nickname", "coins"],
+  "permission": {
+    "read": "doc._id == auth.uid || 'doc.userId == auth.uid'",
+    "create": false,
+    "update": "doc._id == auth.uid",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "用户ID"
+    },
+    "nickname": {
+      "bsonType": "string",
+      "description": "用户昵称",
+      "maxLength": 20,
+      "trim": "both"
+    },
+    "avatar": {
+      "bsonType": "string",
+      "description": "头像URL",
+      "optional": true
+    },
+    "coins": {
+      "bsonType": "int",
+      "description": "金币数量",
+      "minimum": 0,
+      "defaultValue": 1000
+    },
+    "totalGames": {
+      "bsonType": "int",
+      "description": "总游戏局数",
+      "minimum": 0,
+      "defaultValue": 0
+    },
+    "winCount": {
+      "bsonType": "int",
+      "description": "胜利局数",
+      "minimum": 0,
+      "defaultValue": 0
+    },
+    "totalPotWon": {
+      "bsonType": "int",
+      "description": "总赢得底池",
+      "minimum": 0,
+      "defaultValue": 0
+    },
+    "roomId": {
+      "bsonType": "string",
+      "description": "当前所在房间ID",
+      "optional": true
+    },
+    "ready": {
+      "bsonType": "bool",
+      "description": "是否准备好",
+      "defaultValue": false
+    },
+    "createTime": {
+      "bsonType": "date",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "updateTime": {
+      "bsonType": "date",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}
