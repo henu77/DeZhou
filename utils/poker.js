@@ -53,28 +53,6 @@ function shuffleDeck(deck) {
 }
 
 /**
- * 发牌
- * @param {Array} deck - 牌组
- * @param {number} count - 发牌数量
- * @returns {Object} { deck: 剩余牌组, cards: 发出的牌 }
- */
-function dealCards(deck, count) {
-	return {
-		deck: deck.slice(count),
-		cards: deck.slice(0, count)
-	};
-}
-
-/**
- * 将牌转换为字符串格式
- * @param {Array} cards - 牌数组
- * @returns {Array} 字符串格式牌数组
- */
-function cardsToString(cards) {
-	return cards.map(card => `${card.suit}${card.rank}`);
-}
-
-/**
  * 将字符串格式转换为牌对象
  * @param {Array} cardStrings - 字符串格式牌数组
  * @returns {Array} 牌对象数组
@@ -92,6 +70,15 @@ function stringToCards(cardStrings) {
 }
 
 /**
+ * 将牌转换为字符串格式
+ * @param {Array} cards - 牌数组
+ * @returns {Array} 字符串格式牌数组
+ */
+function cardsToString(cards) {
+	return cards.map(card => `${card.suit}${card.rank}`);
+}
+
+/**
  * 获取牌的显示文本（用于调试）
  * @param {Object} card - 牌对象
  * @returns {string} 显示文本
@@ -106,7 +93,6 @@ module.exports = {
 	createDeck,
 	getRankValue,
 	shuffleDeck,
-	dealCards,
 	cardsToString,
 	stringToCards,
 	getCardDisplay
