@@ -153,8 +153,8 @@ export default {
 					.doc(this.roomId)
 					.get()
 
-				if (res.data && res.data.length > 0) {
-					this.room = res.data[0]
+				if (res.data) {
+					this.room = res.data
 					this.isOwner = this.room.creatorId === this.currentUserId
 
 					// 检查当前用户是否已准备

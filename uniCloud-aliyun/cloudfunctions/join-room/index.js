@@ -71,24 +71,23 @@ exports.main = async (event, context) => {
 
   // 获取用户信息
   const userRes = await db.collection('users')
-    .field({ nickname: 1, avatar: 1, coins: 1 })
     .doc(userId)
     .get();
 
-  if (!userRes.data || userRes.data.length === 0) {
+  if (!userRes.data) {
     return {
       code: 404,
       message: '用户不存在'
     };
   }
 
-  const user = userRes.data[0];
+  const user = userRes.data;
 
-  // 验证用户金币是否足够（至少需要大盲注×2）
-  if (user.coins < room.bigBlind * 2) {
+  // 验证用户金币是否足够（固定需要 100 金币）
+  if (user.coins < 100) {
     return {
       code: 400,
-      message: `金币不足，至少需要 ${room.bigBlind * 2} 金币才能加入房间`
+      message: '金币不足，至少需要 100 金币才能加入房间'
     };
   }
 

@@ -79,8 +79,8 @@
 			return {
 				roomName: '默认房间',
 				maxPlayers: 6,
-				smallBlind: 100,
-				bigBlind: 500,
+				smallBlind: 50,
+				bigBlind: 100,
 				errorMessage: ''
 			}
 		},
@@ -98,7 +98,7 @@
 			},
 
 			minCoinsNeeded() {
-				return this.bigBlind * 2
+				return 100
 			}
 		},
 
@@ -146,9 +146,9 @@
 				}
 
 				// 检查金币是否足够
-				if (currentUser.coins < this.minCoinsNeeded) {
+				if (currentUser.coins < 100) {
 					uni.showToast({
-						title: `金币不足，需要 ${this.minCoinsNeeded} 金币`,
+						title: '金币不足，需要 100 金币',
 						icon: 'none',
 						duration: 3000
 					})
@@ -191,26 +191,12 @@
 				} catch (error) {
 					console.error('创建房间失败:', error)
 					uni.hideLoading()
-					
-					// 本地模拟创建（开发测试用）
-					this.handleLocalCreateRoom()
-				}
-			},
-
-			// 本地模拟创建房间（开发测试用）
-			handleLocalCreateRoom() {
-				const mockRoomId = 'room_' + Date.now()
-				
-				uni.showToast({
-					title: '创建成功（测试模式）',
-					icon: 'success'
-				})
-
-				setTimeout(() => {
-					uni.navigateTo({
-						url: `/pages/room-detail/room-detail?roomId=${mockRoomId}`
+					uni.showToast({
+						title: error.message || '创建失败',
+						icon: 'none',
+						duration: 3000
 					})
-				}, 1500)
+				}
 			},
 
 			goBack() {
