@@ -104,7 +104,6 @@ export default {
       room: null,
       loading: false,
       currentUserId: '',
-      timer: null,
       gameEnded: false
     }
   },
@@ -146,7 +145,6 @@ export default {
   onLoad(options) {
     this.roomId = options.roomId
     this.loadGameInfo()
-    this.startAutoRefresh()
 
     // 获取当前用户信息
     const currentUser = uni.getStorageSync('currentUser')
@@ -155,8 +153,12 @@ export default {
     }
   },
 
+  onShow() {
+    this.loadGameInfo()
+  },
+
   onUnload() {
-    this.stopAutoRefresh()
+    // 无需清理
   },
 
   methods: {
@@ -278,19 +280,6 @@ export default {
       uni.navigateTo({
         url: `/pages/game-result/game-result?roomId=${this.roomId}`
       })
-    },
-
-    startAutoRefresh() {
-      this.timer = setInterval(() => {
-        this.loadGameInfo()
-      }, 3000)
-    },
-
-    stopAutoRefresh() {
-      if (this.timer) {
-        clearInterval(this.timer)
-        this.timer = null
-      }
     }
   }
 }

@@ -73,7 +73,6 @@ export default {
 			currentUserId: '',
 			isOwner: false,
 			isReady: false,
-			timer: null,
 			gameStarted: false
 		}
 	},
@@ -376,19 +375,6 @@ export default {
 					fail: () => resolve(false)
 				})
 			})
-		},
-
-		startAutoRefresh() {
-			this.timer = setInterval(() => {
-				this.loadRoomInfo()
-			}, 5000)
-		},
-
-		stopAutoRefresh() {
-			if (this.timer) {
-				clearInterval(this.timer)
-				this.timer = null
-			}
 		}
 	}
 }
