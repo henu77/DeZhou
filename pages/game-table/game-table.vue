@@ -283,7 +283,7 @@ export default {
     startAutoRefresh() {
       this.timer = setInterval(() => {
         this.loadGameInfo()
-      }, 1500)
+      }, 3000)
     },
 
     stopAutoRefresh() {

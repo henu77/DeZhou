@@ -87,7 +87,6 @@ export default {
 	onLoad(options) {
 		this.roomId = options.roomId
 		this.joinRoom()
-		this.startAutoRefresh()
 
 		// 获取当前用户信息
 		const currentUser = uni.getStorageSync('currentUser')
@@ -96,12 +95,32 @@ export default {
 		}
 	},
 
+	onShow() {
+		this.loadRoomInfo()
+	},
+
 	onUnload() {
-		this.stopAutoRefresh()
+		// 无需清理
 	},
 
 	methods: {
 		async joinRoom() {
+			// 获取当前用户信息
+			const currentUser = uni.getStorageSync('currentUser')
+			if (!currentUser || !currentUser._id) {
+				uni.showToast({
+					title: '请先登录',
+					icon: 'none'
+				})
+				setTimeout(() => {
+					uni.navigateTo({
+						url: '/pages/login/login'
+					})
+				}, 1500)
+				return
+			}
+			this.currentUserId = currentUser._id
+
 			// 检查是否已在房间中（通过检查本地存储的房间 ID）
 			const joinedRoomId = uni.getStorageSync('joinedRoomId')
 			if (joinedRoomId === this.roomId) {
@@ -362,7 +381,7 @@ export default {
 		startAutoRefresh() {
 			this.timer = setInterval(() => {
 				this.loadRoomInfo()
-			}, 2000)
+			}, 5000)
 		},
 
 		stopAutoRefresh() {

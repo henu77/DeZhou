@@ -34,19 +34,6 @@ exports.main = async (event, context) => {
       : { phone: account.trim(), password: encryptedPassword };
 
     const userRes = await db.collection('users')
-      .field({
-        _id: 1,
-        nickname: 1,
-        email: 1,
-        phone: 1,
-        avatar: 1,
-        coins: 1,
-        totalGames: 1,
-        winCount: 1,
-        totalPotWon: 1,
-        roomId: 1,
-        ready: 1
-      })
       .where(query)
       .get();
 

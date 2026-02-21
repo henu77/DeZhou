@@ -212,9 +212,11 @@ exports.main = async (event, context) => {
         gameEnded = true;
       } else {
         // 进入下一游戏轮次
-        const { gameState: nextGameState, newRound, gameEnded: shouldEnd } = gameLogic.advanceRound(newGameState);
+        const result = gameLogic.advanceRound(newGameState);
+        const nextGameState = result.gameState;
+        const newRound = result.newRound;
 
-        updateData.round = nextRound;
+        updateData.round = newRound;
         updateData.currentPlayerIndex = nextGameState.currentPlayerIndex;
         updateData.roundBets = nextGameState.roundBets;
         updateData.currentBet = nextGameState.currentBet;

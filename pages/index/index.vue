@@ -23,6 +23,7 @@
         />
       </view>
       <button class="create-btn" @click="goCreateRoom">+</button>
+      <button class="refresh-btn" @click="loadRooms" :disabled="loading">⟳</button>
     </view>
 
     <view class="room-list">
@@ -78,15 +79,15 @@ export default {
   onLoad() {
     this.checkLogin()
     this.loadRooms()
-    this.startAutoRefresh()
   },
 
   onShow() {
     this.checkLogin()
+    this.loadRooms()
   },
 
   onUnload() {
-    this.stopAutoRefresh()
+    // 无需清理定时器
   },
 
   onPullDownRefresh() {
@@ -160,19 +161,6 @@ export default {
       uni.navigateTo({
         url: '/pages/create-room/create-room'
       })
-    },
-
-    startAutoRefresh() {
-      this.timer = setInterval(() => {
-        this.loadRooms()
-      }, 5000)
-    },
-
-    stopAutoRefresh() {
-      if (this.timer) {
-        clearInterval(this.timer)
-        this.timer = null
-      }
     }
   }
 }
@@ -265,6 +253,24 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.refresh-btn {
+  width: 70rpx;
+  height: 70rpx;
+  background-color: #f5f5f5;
+  color: #666;
+  border-radius: 50%;
+  font-size: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10rpx;
+  border: 2rpx solid #e0e0e0;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
 }
 
 .room-list {
