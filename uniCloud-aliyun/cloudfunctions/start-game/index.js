@@ -11,8 +11,11 @@ const handEvaluator = require('../../../utils/hand-evaluator.js');
 exports.main = async (event, context) => {
   const db = uniCloud.database();
 
+  // 从 event 中获取 userId（前端传递）
+  const userId = event.userId;
+
   // 验证登录
-  if (!event.userInfo || !event.userInfo.uid) {
+  if (!userId) {
     return {
       code: 401,
       message: '请先登录'
@@ -44,7 +47,7 @@ exports.main = async (event, context) => {
   const room = roomRes.data[0];
 
   // 验证房主权限
-  if (room.creatorId !== event.userInfo.uid) {
+  if (room.creatorId !== userId) {
     return {
       code: 403,
       message: '只有房主可以开始游戏'

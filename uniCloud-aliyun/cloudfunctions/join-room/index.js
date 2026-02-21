@@ -9,8 +9,11 @@ const gameLogic = require('../../../utils/game-logic.js');
 exports.main = async (event, context) => {
   const db = uniCloud.database();
 
+  // 从 event 中获取 userId（前端传递）
+  const userId = event.userId;
+
   // 验证登录
-  if (!event.userInfo || !event.userInfo.uid) {
+  if (!userId) {
     return {
       code: 401,
       message: '请先登录'
@@ -58,7 +61,7 @@ exports.main = async (event, context) => {
   }
 
   // 检查用户是否已在房间中
-  const existingPlayerIndex = room.players.findIndex(p => p.userId === event.userInfo.uid);
+  const existingPlayerIndex = room.players.findIndex(p => p.userId === userId);
   if (existingPlayerIndex !== -1) {
     return {
       code: 400,
@@ -69,7 +72,7 @@ exports.main = async (event, context) => {
   // 获取用户信息
   const userRes = await db.collection('users')
     .field({ nickname: 1, avatar: 1, coins: 1 })
-    .doc(event.userInfo.uid)
+    .doc(userId)
     .get();
 
   if (!userRes.data || userRes.data.length === 0) {
@@ -92,7 +95,7 @@ exports.main = async (event, context) => {
   // 创建玩家信息
   const now = new Date();
   const playerInfo = {
-    userId: event.userInfo.uid,
+    userId: userId,
     seat: room.players.length,  // 座位号为当前玩家数量
     nickname: user.nickname,
     avatar: user.avatar || '',
@@ -116,7 +119,7 @@ exports.main = async (event, context) => {
 
     // 更新用户状态
     await db.collection('users')
-      .doc(event.userInfo.uid)
+      .doc(userId)
       .update({
         roomId,
         ready: false,

@@ -3,13 +3,31 @@
   "required": ["_id", "nickname", "coins"],
   "permission": {
     "read": "doc._id == auth.uid || 'doc.userId == auth.uid'",
-    "create": false,
+    "create": true,
     "update": "doc._id == auth.uid",
     "delete": false
   },
   "properties": {
     "_id": {
-      "description": "用户ID"
+      "description": "用户 ID"
+    },
+    "email": {
+      "bsonType": "string",
+      "description": "邮箱地址",
+      "optional": true,
+      "trim": "both"
+    },
+    "phone": {
+      "bsonType": "string",
+      "description": "手机号",
+      "optional": true,
+      "trim": "both"
+    },
+    "password": {
+      "bsonType": "string",
+      "description": "密码（加密存储）",
+      "optional": true,
+      "trim": "both"
     },
     "nickname": {
       "bsonType": "string",
@@ -19,7 +37,7 @@
     },
     "avatar": {
       "bsonType": "string",
-      "description": "头像URL",
+      "description": "头像 URL",
       "optional": true
     },
     "coins": {
@@ -48,7 +66,7 @@
     },
     "roomId": {
       "bsonType": "string",
-      "description": "当前所在房间ID",
+      "description": "当前所在房间 ID",
       "optional": true
     },
     "ready": {

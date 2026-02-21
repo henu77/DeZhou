@@ -1,288 +1,299 @@
 <template>
-	<view class="container">
-		<view class="search-bar">
-			<view class="search-input">
-				<text class="search-icon">🔍</text>
-				<input
-					v-model="searchKeyword"
-					@confirm="handleSearch"
-					placeholder="搜索房间名称"
-					confirm-type="search"
-				/>
-			</view>
-			<button class="create-btn" @click="goCreateRoom">＋</button>
-		</view>
+  <view class="container">
+    <!-- 用户信息栏 -->
+    <view class="user-bar" v-if="currentUser">
+      <view class="user-info">
+        <text class="user-avatar">👤</text>
+        <view class="user-detail">
+          <text class="user-nickname">{{ currentUser.nickname }}</text>
+          <text class="user-coins">💰 {{ currentUser.coins }}</text>
+        </view>
+      </view>
+      <button class="logout-btn" @click="handleLogout">退出</button>
+    </view>
 
-		<view class="room-list">
-			<view v-if="loading" class="loading">加载中...</view>
+    <view class="search-bar">
+      <view class="search-input">
+        <text class="search-icon">🔍</text>
+        <input
+          v-model="searchKeyword"
+          @confirm="handleSearch"
+          placeholder="搜索房间名称"
+          confirm-type="search"
+        />
+      </view>
+      <button class="create-btn" @click="goCreateRoom">+</button>
+    </view>
 
-			<view v-else-if="filteredRooms.length === 0" class="empty">
-				<text>🏠</text>
-				<text>暂无房间，快创建一个吧！</text>
-			</view>
+    <view class="room-list">
+      <view v-if="loading" class="loading">加载中...</view>
 
-			<view v-else class="rooms">
-				<view
-					v-for="room in filteredRooms"
-					:key="room._id"
-					class="room-card"
-					@click="joinRoom(room)"
-				>
-					<view class="room-header">
-						<text class="room-name">房间: {{room.roomName}}</text>
-						<text class="room-id">ID: {{room._id}}</text>
-					</view>
+      <view v-else-if="filteredRooms.length === 0" class="empty">
+        <text>🏠</text>
+        <text>暂无房间，快创建一个吧！</text>
+      </view>
 
-					<view class="room-info">
-						<text>👥 {{room.players.length}}/{{room.maxPlayers}}人</text>
-						<text>💰 小{{room.smallBlind}}/大{{room.bigBlind}}</text>
-					</view>
-
-					<view class="room-footer">
-						<text class="status">{{getStatusText(room.gameState)}}</text>
-						<text class="time">🕒 {{getTimeAgo(room.createTime)}}</text>
-					</view>
-				</view>
-			</view>
-		</view>
-	</view>
+      <view v-else class="rooms">
+        <RoomCard
+          v-for="room in filteredRooms"
+          :key="room._id"
+          :room="room"
+          @join="handleJoinRoom"
+        />
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
+import RoomCard from '@/components/RoomCard.vue'
+
 export default {
-	data() {
-		return {
-			rooms: [],
-			loading: false,
-			searchKeyword: '',
-			timer: null
-		}
-	},
+  components: {
+    RoomCard
+  },
+  data() {
+    return {
+      rooms: [],
+      loading: false,
+      searchKeyword: '',
+      timer: null,
+      currentUser: null
+    }
+  },
 
-	computed: {
-		filteredRooms() {
-			if (!this.searchKeyword) {
-				return this.rooms
-			}
-			const keyword = this.searchKeyword.toLowerCase()
-			return this.rooms.filter(room =>
-				room.roomName.toLowerCase().includes(keyword) ||
-				room._id.includes(keyword)
-			)
-		}
-	},
+  computed: {
+    filteredRooms() {
+      if (!this.searchKeyword) {
+        return this.rooms
+      }
+      const keyword = this.searchKeyword.toLowerCase()
+      return this.rooms.filter(room =>
+        room.roomName.toLowerCase().includes(keyword) ||
+        room._id.includes(keyword)
+      )
+    }
+  },
 
-	onLoad() {
-		this.loadRooms()
-		this.startAutoRefresh()
-	},
+  onLoad() {
+    this.checkLogin()
+    this.loadRooms()
+    this.startAutoRefresh()
+  },
 
-	onUnload() {
-		this.stopAutoRefresh()
-	},
+  onShow() {
+    this.checkLogin()
+  },
 
-	onPullDownRefresh() {
-		this.loadRooms().then(() => {
-			uni.stopPullDownRefresh()
-		})
-	},
+  onUnload() {
+    this.stopAutoRefresh()
+  },
 
-	methods: {
-		async loadRooms() {
-			this.loading = true
-			try {
-				const db = uniCloud.database()
-				const res = await db.collection('game_rooms')
-					.where({ gameState: 'waiting' })
-					.orderBy('createTime', 'desc')
-					.get()
+  onPullDownRefresh() {
+    this.loadRooms().then(() => {
+      uni.stopPullDownRefresh()
+    })
+  },
 
-				this.rooms = res.data || []
-			} catch (error) {
-				console.error('加载房间列表失败:', error)
-				uni.showToast({
-					title: '加载失败',
-					icon: 'none'
-				})
-			} finally {
-				this.loading = false
-			}
-		},
+  methods: {
+    checkLogin() {
+      const currentUser = uni.getStorageSync('currentUser')
+      if (!currentUser || !currentUser._id) {
+        // 未登录，跳转到登录页
+        uni.reLaunch({
+          url: '/pages/login/login'
+        })
+        return
+      }
+      this.currentUser = currentUser
+    },
 
-		handleSearch() {
-			// 搜索已在 computed 中处理
-			uni.hideKeyboard()
-		},
+    handleLogout() {
+      uni.showModal({
+        title: '提示',
+        content: '确定要退出登录吗？',
+        success: (res) => {
+          if (res.confirm) {
+            uni.removeStorageSync('currentUser')
+            uni.removeStorageSync('token')
+            this.currentUser = null
+            uni.reLaunch({
+              url: '/pages/login/login'
+            })
+          }
+        }
+      })
+    },
 
-		joinRoom(room) {
-			uni.navigateTo({
-				url: `/pages/room-detail/room-detail?roomId=${room._id}`
-			})
-		},
+    async loadRooms() {
+      this.loading = true
+      try {
+        const db = uniCloud.database()
+        const res = await db.collection('game_rooms')
+          .where({ gameState: 'waiting' })
+          .orderBy('createTime', 'desc')
+          .get()
 
-		goCreateRoom() {
-			uni.navigateTo({
-				url: '/pages/create-room/create-room'
-			})
-		},
+        this.rooms = res.data || []
+      } catch (error) {
+        console.error('加载房间列表失败:', error)
+        uni.showToast({
+          title: '加载失败',
+          icon: 'none'
+        })
+      } finally {
+        this.loading = false
+      }
+    },
 
-		getStatusText(status) {
-			const statusMap = {
-				waiting: '🟡 等待中',
-				playing: '🔴 进行中',
-				finished: '⚫ 已结束'
-			}
-			return statusMap[status] || '🟡 等待中'
-		},
+    handleSearch() {
+      uni.hideKeyboard()
+    },
 
-		getTimeAgo(createTime) {
-			if (!createTime) return ''
-			const now = Date.now()
-			const created = new Date(createTime).getTime()
-			const diff = now - created
-			const minutes = Math.floor(diff / 60000)
+    handleJoinRoom({ roomId, room }) {
+      uni.navigateTo({
+        url: `/pages/room-detail/room-detail?roomId=${roomId}`
+      })
+    },
 
-			if (minutes < 1) return '刚刚'
-			if (minutes < 60) return `${minutes}分钟前`
-			const hours = Math.floor(minutes / 60)
-			if (hours < 24) return `${hours}小时前`
-			const days = Math.floor(hours / 24)
-			return `${days}天前`
-		},
+    goCreateRoom() {
+      uni.navigateTo({
+        url: '/pages/create-room/create-room'
+      })
+    },
 
-		startAutoRefresh() {
-			this.timer = setInterval(() => {
-				this.loadRooms()
-			}, 5000)
-		},
+    startAutoRefresh() {
+      this.timer = setInterval(() => {
+        this.loadRooms()
+      }, 5000)
+    },
 
-		stopAutoRefresh() {
-			if (this.timer) {
-				clearInterval(this.timer)
-				this.timer = null
-			}
-		}
-	}
+    stopAutoRefresh() {
+      if (this.timer) {
+        clearInterval(this.timer)
+        this.timer = null
+      }
+    }
+  }
 }
 </script>
 
 <style scoped>
 .container {
-	padding: 20rpx;
-	background-color: #f5f5f5;
-	min-height: 100vh;
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.user-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border-radius: 12rpx;
+  padding: 20rpx 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.user-avatar {
+  font-size: 40rpx;
+}
+
+.user-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.user-nickname {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.user-coins {
+  font-size: 24rpx;
+  color: #f59e0b;
+}
+
+.logout-btn {
+  font-size: 24rpx;
+  color: #666;
+  background-color: #f5f5f5;
+  border-radius: 50rpx;
+  padding: 10rpx 24rpx;
+  border: 2rpx solid #e0e0e0;
 }
 
 .search-bar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
 }
 
 .search-input {
-	flex: 1;
-	display: flex;
-	align-items: center;
-	background-color: white;
-	border-radius: 50rpx;
-	padding: 15rpx 30rpx;
-	margin-right: 20rpx;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 50rpx;
+  padding: 15rpx 30rpx;
+  margin-right: 20rpx;
 }
 
 .search-input input {
-	flex: 1;
-	font-size: 28rpx;
-	margin-left: 10rpx;
+  flex: 1;
+  font-size: 28rpx;
+  margin-left: 10rpx;
 }
 
 .create-btn {
-	width: 80rpx;
-	height: 80rpx;
-	background-color: #007AFF;
-	color: white;
-	border-radius: 50%;
-	font-size: 50rpx;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #007AFF;
+  color: white;
+  border-radius: 50%;
+  font-size: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .room-list {
-	min-height: 500rpx;
+  min-height: 500rpx;
 }
 
 .loading {
-	text-align: center;
-	padding: 100rpx 0;
-	color: #999;
-	font-size: 28rpx;
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+  font-size: 28rpx;
 }
 
 .empty {
-	text-align: center;
-	padding: 100rpx 0;
-	color: #666;
-	font-size: 28rpx;
+  text-align: center;
+  padding: 100rpx 0;
+  color: #666;
+  font-size: 28rpx;
 }
 
 .empty text:first-child {
-	font-size: 80rpx;
-	margin-bottom: 20rpx;
-	display: block;
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+  display: block;
 }
 
 .rooms {
-	display: flex;
-	flex-direction: column;
-	gap: 20rpx;
-}
-
-.room-card {
-	background-color: white;
-	border-radius: 20rpx;
-	padding: 30rpx;
-	box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
-}
-
-.room-header {
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 20rpx;
-	align-items: center;
-}
-
-.room-name {
-	font-size: 32rpx;
-	font-weight: bold;
-	color: #333;
-}
-
-.room-id {
-	font-size: 24rpx;
-	color: #999;
-}
-
-.room-info {
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 15rpx;
-	font-size: 28rpx;
-	color: #666;
-}
-
-.room-footer {
-	display: flex;
-	justify-content: space-between;
-	font-size: 24rpx;
-	color: #999;
-}
-
-.status {
-	color: #FF9500;
-}
-
-.time {
-	color: #999;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 </style>

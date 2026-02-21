@@ -7,8 +7,11 @@
 exports.main = async (event, context) => {
   const db = uniCloud.database();
 
+  // 从 event 中获取 userId（前端传递）
+  const userId = event.userId;
+
   // 验证登录
-  if (!event.userInfo || !event.userInfo.uid) {
+  if (!userId) {
     return {
       code: 401,
       message: '请先登录'
@@ -54,7 +57,7 @@ exports.main = async (event, context) => {
   // 获取创建者信息
   const userRes = await db.collection('users')
     .field({ nickname: 1, avatar: 1, coins: 1 })
-    .doc(event.userInfo.uid)
+    .doc(userId)
     .get();
 
   if (!userRes.data || userRes.data.length === 0) {
@@ -105,7 +108,7 @@ exports.main = async (event, context) => {
   // 创建房间
   const now = new Date();
   const playerInfo = {
-    userId: event.userInfo.uid,
+    userId: userId,
     seat: 0,
     nickname: user.nickname,
     avatar: user.avatar || '',
@@ -123,7 +126,7 @@ exports.main = async (event, context) => {
       maxPlayers,
       smallBlind,
       bigBlind,
-      creatorId: event.userInfo.uid,
+      creatorId: userId,
       gameState: 'waiting',
       players: [playerInfo],
       currentPlayerIndex: null,
@@ -139,7 +142,7 @@ exports.main = async (event, context) => {
 
     // 更新用户状态
     await db.collection('users')
-      .doc(event.userInfo.uid)
+      .doc(userId)
       .update({
         roomId,
         ready: false,

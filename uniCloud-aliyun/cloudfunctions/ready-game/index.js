@@ -7,8 +7,11 @@
 exports.main = async (event, context) => {
   const db = uniCloud.database();
 
+  // 从 event 中获取 userId（前端传递）
+  const userId = event.userId;
+
   // 验证登录
-  if (!event.userInfo || !event.userInfo.uid) {
+  if (!userId) {
     return {
       code: 401,
       message: '请先登录'
@@ -48,7 +51,7 @@ exports.main = async (event, context) => {
   }
 
   // 查找玩家在房间中的索引
-  const playerIndex = room.players.findIndex(p => p.userId === event.userInfo.uid);
+  const playerIndex = room.players.findIndex(p => p.userId === userId);
   if (playerIndex === -1) {
     return {
       code: 400,
@@ -75,7 +78,7 @@ exports.main = async (event, context) => {
 
     // 更新用户状态
     await db.collection('users')
-      .doc(event.userInfo.uid)
+      .doc(userId)
       .update({
         ready,
         updateTime: now

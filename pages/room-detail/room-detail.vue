@@ -86,13 +86,13 @@ export default {
 
 	onLoad(options) {
 		this.roomId = options.roomId
-		this.loadRoomInfo()
+		this.joinRoom()
 		this.startAutoRefresh()
 
 		// 获取当前用户信息
-		const userInfo = uni.getStorageSync('userInfo')
-		if (userInfo && userInfo.uid) {
-			this.currentUserId = userInfo.uid
+		const currentUser = uni.getStorageSync('currentUser')
+		if (currentUser && currentUser._id) {
+			this.currentUserId = currentUser._id
 		}
 	},
 
@@ -101,6 +101,50 @@ export default {
 	},
 
 	methods: {
+		async joinRoom() {
+			// 检查是否已在房间中（通过检查本地存储的房间 ID）
+			const joinedRoomId = uni.getStorageSync('joinedRoomId')
+			if (joinedRoomId === this.roomId) {
+				// 已在房间中，直接加载信息
+				this.loadRoomInfo()
+				return
+			}
+
+			try {
+				// 调用云函数加入房间
+				const res = await uniCloud.callFunction({
+					name: 'join-room',
+					data: {
+						roomId: this.roomId,
+						userId: this.currentUserId
+					}
+				})
+
+				if (res.result.code === 200) {
+					// 保存已加入的房间 ID
+					uni.setStorageSync('joinedRoomId', this.roomId)
+					this.loadRoomInfo()
+				} else {
+					// 加入失败（如房间已满），显示错误
+					uni.showToast({
+						title: res.result.message || '加入失败',
+						icon: 'none',
+						duration: 3000
+					})
+					setTimeout(() => {
+						uni.navigateBack()
+					}, 1500)
+				}
+			} catch (error) {
+				console.error('加入房间失败:', error)
+				uni.showToast({
+					title: error.message || '加入失败',
+					icon: 'none',
+					duration: 3000
+				})
+			}
+		},
+
 		async loadRoomInfo() {
 			this.loading = true
 			try {
@@ -153,7 +197,8 @@ export default {
 					name: 'ready-game',
 					data: {
 						roomId: this.roomId,
-						ready: !this.isReady
+						ready: !this.isReady,
+						userId: this.currentUserId
 					}
 				})
 
@@ -197,7 +242,10 @@ export default {
 				// 调用云函数
 				const res = await uniCloud.callFunction({
 					name: 'start-game',
-					data: { roomId: this.roomId }
+					data: {
+						roomId: this.roomId,
+						userId: this.currentUserId
+					}
 				})
 
 				uni.hideLoading()
@@ -237,7 +285,10 @@ export default {
 				// 调用云函数
 				const res = await uniCloud.callFunction({
 					name: 'leave-room',
-					data: { roomId: this.roomId }
+					data: {
+						roomId: this.roomId,
+						userId: this.currentUserId
+					}
 				})
 
 				uni.hideLoading()
