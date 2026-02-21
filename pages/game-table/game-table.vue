@@ -172,8 +172,8 @@ export default {
           .doc(this.roomId)
           .get()
 
-        if (res.data && res.data.length > 0) {
-          this.room = res.data[0]
+        if (res.data) {
+          this.room = res.data
 
           // 检查游戏是否结束
           if (this.room.gameState === 'ended' || this.room.gameState === 'finished') {

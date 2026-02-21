@@ -4,7 +4,7 @@
  * 玩家加入房间
  */
 
-const gameLogic = require('../../../utils/game-logic.js');
+const gameLogic = require('../common/game-logic.js');
 
 exports.main = async (event, context) => {
   const db = uniCloud.database();

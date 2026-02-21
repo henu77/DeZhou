@@ -4,9 +4,9 @@
  * 开始游戏
  */
 
-const gameLogic = require('../../../utils/game-logic.js');
-const poker = require('../../../utils/poker.js');
-const handEvaluator = require('../../../utils/hand-evaluator.js');
+const gameLogic = require('../common/game-logic.js');
+const poker = require('../common/poker.js');
+const handEvaluator = require('../common/hand-evaluator.js');
 
 exports.main = async (event, context) => {
   const db = uniCloud.database();
